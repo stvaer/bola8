@@ -112,18 +112,18 @@ export function Magic8Ball() {
   const renderContent = () => {
     switch (status) {
       case 'loading':
-        return <Loader2 className="h-10 w-10 animate-spin text-blue-300" />;
+        return <Loader2 className="h-10 w-10 animate-spin text-digital-green text-glow" />;
       case 'error':
         return (
           <div className="flex flex-col items-center text-center">
-            <AlertTriangle className="h-8 w-8 text-destructive mb-2" />
-            <p className="text-lg font-bold px-4 text-white">{affirmation}</p>
+            <AlertTriangle className="h-8 w-8 text-digital-green text-glow mb-2" />
+            <p className="font-digital text-4xl text-digital-green text-glow text-center leading-snug px-4 animate-fade-in">{affirmation}</p>
           </div>
         );
       case 'idle':
       case 'shaking':
         return (
-          <p className="text-xl font-semibold text-center text-white leading-snug px-4 animate-fade-in">
+          <p className="font-digital text-4xl text-digital-green text-glow text-center leading-snug px-4 animate-fade-in">
             {affirmation}
           </p>
         );
