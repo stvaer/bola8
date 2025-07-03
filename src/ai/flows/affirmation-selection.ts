@@ -28,6 +28,16 @@ const affirmations = [
   'Perspectiva buena',
   'Sí',
   'Las señales apuntan a que sí',
+  'No cuentes con ello',
+  'Mi respuesta es no',
+  'Mis fuentes dicen que no',
+  'Las perspectivas no son muy buenas',
+  'Muy dudoso',
+  'Respuesta confusa, vuelve a intentarlo',
+  'Vuelve a preguntar más tarde',
+  'Mejor no decirte ahora',
+  'No se puede predecir ahora',
+  'Concéntrate y vuelve a preguntar',
 ];
 
 export async function selectAffirmation(): Promise<SelectAffirmationOutput> {
