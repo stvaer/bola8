@@ -117,13 +117,13 @@ export function Magic8Ball() {
         return (
           <div className="flex flex-col items-center text-center">
             <AlertTriangle className="h-8 w-8 text-digital-green text-glow mb-2" />
-            <p className="font-digital text-4xl text-digital-green text-glow text-center leading-snug px-4 animate-fade-in">{affirmation}</p>
+            <p className="font-digital text-3xl text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">{affirmation}</p>
           </div>
         );
       case 'idle':
       case 'shaking':
         return (
-          <p className="font-digital text-4xl text-digital-green text-glow text-center leading-snug px-4 animate-fade-in">
+          <p className="font-digital text-3xl text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
             {affirmation}
           </p>
         );
