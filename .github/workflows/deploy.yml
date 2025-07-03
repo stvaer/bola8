@@ -1,29 +1,19 @@
-name: Deploy to Firebase App Hosting
+name: Deploy to Firebase Hosting
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Google Auth
-        uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4
+      - run: npm ci && npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          workload_identity_provider: 'projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/<POOL_ID>/providers/github'
-          service_account: 'firebase-app-hosting-deploy@<PROJECT_ID>.iam.gserviceaccount.com'
-
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Deploy to Firebase App Hosting
-        run: gcloud app-hosting backends deploy --region=us-central1 <BACKEND_ID>
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BOLA8_DD429 }}'
+          channelId: live
+          projectId: bola8-dd429
