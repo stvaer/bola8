@@ -88,10 +88,22 @@ export default {
             height: '0',
           },
         },
+        'shake': {
+          '10%, 90%': { transform: 'translate3d(-1px, 0, 0) rotate(-1deg)' },
+          '20%, 80%': { transform: 'translate3d(2px, 0, 0) rotate(2deg)' },
+          '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0) rotate(-3deg)' },
+          '40%, 60%': { transform: 'translate3d(4px, 0, 0) rotate(3deg)' },
+        },
+        'fade-in': {
+          from: { opacity: '0', transform: 'scale(0.9)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'shake': 'shake 0.82s cubic-bezier(.36,.07,.19,.97) both',
+        'fade-in': 'fade-in 0.5s ease-in-out',
       },
     },
   },
