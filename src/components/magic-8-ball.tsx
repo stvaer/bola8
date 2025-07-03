@@ -10,8 +10,16 @@ import { useToast } from "@/hooks/use-toast"
 export function Magic8Ball() {
   const [affirmation, setAffirmation] = useState('8');
   const [status, setStatus] = useState<'idle' | 'shaking' | 'loading' | 'error'>('idle');
-  const [isPermissionRequired, setIsPermissionRequired] = useState(false);
+  const [permissionState, setPermissionState] = useState<'unknown' | 'required' | 'granted'>('unknown');
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+      setPermissionState('required');
+    } else {
+      setPermissionState('granted');
+    }
+  }, []);
 
   const getAffirmation = useCallback(async () => {
     if (status === 'shaking' || status === 'loading') return;
@@ -39,7 +47,9 @@ export function Magic8Ball() {
     return () => clearTimeout(shakeTimeout);
   }, [status, toast]);
 
-  const addShakeListener = useCallback(() => {
+  useEffect(() => {
+    if (permissionState !== 'granted') return;
+
     const SHAKE_THRESHOLD = 30;
     let lastUpdate = 0;
     let last_x: number | null, last_y: number | null, last_z: number | null;
@@ -69,19 +79,15 @@ export function Magic8Ball() {
     
     window.addEventListener('devicemotion', handler, true);
     return () => window.removeEventListener('devicemotion', handler, true);
-  }, [getAffirmation, status]);
+  }, [permissionState, getAffirmation, status]);
 
   const requestMotionPermission = useCallback(async () => {
-    if (typeof (DeviceMotionEvent as any).requestPermission !== 'function') {
-      addShakeListener();
-      return;
-    }
+    if (permissionState !== 'required') return;
 
     try {
-      const permissionState = await (DeviceMotionEvent as any).requestPermission();
-      if (permissionState === 'granted') {
-        setIsPermissionRequired(false);
-        addShakeListener();
+      const result = await (DeviceMotionEvent as any).requestPermission();
+      if (result === 'granted') {
+        setPermissionState('granted');
       } else {
         toast({
             title: "Permiso denegado",
@@ -97,15 +103,7 @@ export function Magic8Ball() {
             variant: "destructive",
       })
     }
-  }, [addShakeListener, toast]);
-  
-  useEffect(() => {
-    if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
-      setIsPermissionRequired(true);
-    } else {
-      addShakeListener();
-    }
-  }, [addShakeListener]);
+  }, [permissionState, toast]);
   
   const isBusy = status === 'shaking' || status === 'loading';
 
@@ -117,13 +115,13 @@ export function Magic8Ball() {
         return (
           <div className="flex flex-col items-center text-center">
             <AlertTriangle className="h-8 w-8 text-digital-green text-glow mb-2" />
-            <p className="font-digital text-[25px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">{affirmation}</p>
+            <p className="font-digital text-[20px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">{affirmation}</p>
           </div>
         );
       case 'idle':
       case 'shaking':
         return (
-          <p className="font-digital text-[25px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
+          <p className="font-digital text-[20px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
             {affirmation}
           </p>
         );
@@ -150,7 +148,7 @@ export function Magic8Ball() {
         </div>
       </div>
       
-      {isPermissionRequired && (
+      {permissionState === 'required' && (
         <Button onClick={requestMotionPermission} variant="outline" className="bg-background/80 hover:bg-background">
           Habilitar agitación del dispositivo
         </Button>
