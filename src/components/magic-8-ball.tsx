@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast"
 
 const affirmations = [
   'Sí, definitivamente',
@@ -32,16 +31,17 @@ const affirmations = [
 export function Magic8Ball() {
   const [affirmation, setAffirmation] = useState('8');
   const [status, setStatus] = useState<'idle' | 'shaking' | 'loading'>('idle');
-  const [permissionState, setPermissionState] = useState<'unknown' | 'required' | 'granted'>('unknown');
-  const { toast } = useToast();
-  const lastShakeTimestamp = useRef(0);
-
   const isBusy = status === 'shaking' || status === 'loading';
 
   const getAffirmation = useCallback(() => {
     if (isBusy) return;
 
     setStatus('shaking');
+
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      // Vibrate for 1 second to match the shake animation
+      navigator.vibrate(1000);
+    }
 
     setTimeout(() => {
       setStatus('loading');
@@ -56,6 +56,15 @@ export function Magic8Ball() {
 
     }, 1000);
   }, [isBusy]);
+
+  /*
+  // Shake functionality commented out as per request
+  import { useEffect, useRef } from 'react';
+  import { useToast } from "@/hooks/use-toast"
+
+  const [permissionState, setPermissionState] = useState<'unknown' | 'required' | 'granted'>('unknown');
+  const { toast } = useToast();
+  const lastShakeTimestamp = useRef(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof (DeviceMotionEvent as any).requestPermission === 'function') {
@@ -132,6 +141,7 @@ export function Magic8Ball() {
       })
     }
   }, [permissionState, toast]);
+  */
   
   const renderContent = () => {
     switch (status) {
@@ -140,7 +150,7 @@ export function Magic8Ball() {
       case 'idle':
       case 'shaking':
         return (
-          <p className="font-digital text-[10px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
+          <p className="font-digital text-[15px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
             {affirmation}
           </p>
         );
@@ -167,11 +177,13 @@ export function Magic8Ball() {
         </div>
       </div>
       
+      {/*
       {permissionState === 'required' && (
         <Button onClick={requestMotionPermission} variant="outline" className="bg-background/80 hover:bg-background">
           Habilitar agitación del dispositivo
         </Button>
       )}
+      */}
 
       <Button onClick={getAffirmation} disabled={isBusy} size="lg" className="min-w-[280px]">
         {isBusy ? (
