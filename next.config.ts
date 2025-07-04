@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   basePath: '/bola8',
   assetPrefix: '/bola8',
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
