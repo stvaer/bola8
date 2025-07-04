@@ -35,14 +35,6 @@ export function Magic8Ball() {
   const [permissionState, setPermissionState] = useState<'unknown' | 'required' | 'granted'>('unknown');
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
-      setPermissionState('required');
-    } else {
-      setPermissionState('granted');
-    }
-  }, []);
-
   const isBusy = status === 'shaking' || status === 'loading';
 
   const getAffirmation = useCallback(() => {
@@ -66,14 +58,23 @@ export function Magic8Ball() {
   }, [isBusy]);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+      setPermissionState('required');
+    } else {
+      setPermissionState('granted');
+    }
+  }, []);
+
+  useEffect(() => {
     if (permissionState !== 'granted') return;
 
     const SHAKE_THRESHOLD = 30;
     let lastUpdate = 0;
-    let last_x: number | null, last_y: number | null, last_z: number | null;
+    let last_x: number | null = null, last_y: number | null = null, last_z: number | null = null;
 
     const handler = (event: DeviceMotionEvent) => {
       if (status === 'shaking' || status === 'loading') return;
+      
       const { acceleration } = event;
       if (!acceleration) return;
       
@@ -83,7 +84,9 @@ export function Magic8Ball() {
         lastUpdate = curTime;
         const { x, y, z } = acceleration;
 
-        if (last_x !== null && last_y !== null && last_z !== null && x !== null && y !== null && z !== null) {
+        if (x === null || y === null || z === null) return;
+        
+        if (last_x !== null && last_y !== null && last_z !== null) {
            const speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
            if (speed > SHAKE_THRESHOLD) {
               getAffirmation();
