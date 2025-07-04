@@ -68,8 +68,8 @@ export function Magic8Ball() {
   useEffect(() => {
     if (permissionState !== 'granted') return;
 
-    const SHAKE_THRESHOLD = 60;
-    const SHAKE_COOLDOWN = 2000;
+    const SHAKE_THRESHOLD = 120;
+    const SHAKE_COOLDOWN = 3000;
     let lastUpdate = 0;
     let last_x: number | null = null, last_y: number | null = null, last_z: number | null = null;
 
@@ -140,7 +140,7 @@ export function Magic8Ball() {
       case 'idle':
       case 'shaking':
         return (
-          <p className="font-digital text-[15px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
+          <p className="font-digital text-[10px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
             {affirmation}
           </p>
         );
