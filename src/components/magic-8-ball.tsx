@@ -1,15 +1,37 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { selectAffirmation } from '@/ai/flows/affirmation-selection';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast"
+
+const affirmations = [
+  'Sí, definitivamente',
+  'Es cierto',
+  'Es decididamente así',
+  'Sin lugar a dudas',
+  'Puedes confiar en ello',
+  'Como yo lo veo, sí',
+  'Lo más probable',
+  'Perspectiva buena',
+  'Sí',
+  'Las señales apuntan a que sí',
+  'No cuentes con ello',
+  'Mi respuesta es no',
+  'Mis fuentes dicen que no',
+  'Las perspectivas no son muy buenas',
+  'Muy dudoso',
+  'Respuesta confusa, vuelve a intentarlo',
+  'Vuelve a preguntar más tarde',
+  'Mejor no decirte ahora',
+  'No se puede predecir ahora',
+  'Concéntrate y vuelve a preguntar',
+];
 
 export function Magic8Ball() {
   const [affirmation, setAffirmation] = useState('8');
-  const [status, setStatus] = useState<'idle' | 'shaking' | 'loading' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'shaking' | 'loading'>('idle');
   const [permissionState, setPermissionState] = useState<'unknown' | 'required' | 'granted'>('unknown');
   const { toast } = useToast();
 
@@ -21,31 +43,27 @@ export function Magic8Ball() {
     }
   }, []);
 
-  const getAffirmation = useCallback(async () => {
-    if (status === 'shaking' || status === 'loading') return;
+  const isBusy = status === 'shaking' || status === 'loading';
+
+  const getAffirmation = useCallback(() => {
+    if (isBusy) return;
 
     setStatus('shaking');
 
-    const shakeTimeout = setTimeout(async () => {
+    setTimeout(() => {
       setStatus('loading');
-      try {
-        const result = await selectAffirmation();
-        setAffirmation(result.affirmation);
+      
+      const randomIndex = Math.floor(Math.random() * affirmations.length);
+      const newAffirmation = affirmations[randomIndex];
+      
+      // A small delay to show the loading animation before the result
+      setTimeout(() => {
+        setAffirmation(newAffirmation);
         setStatus('idle');
-      } catch (e) {
-        console.error(e);
-        setAffirmation('Error');
-        setStatus('error');
-        toast({
-          title: "Error de Conexión",
-          description: "No se pudo consultar a los espíritus. Revisa tu conexión.",
-          variant: "destructive",
-        })
-      }
-    }, 1000);
+      }, 500);
 
-    return () => clearTimeout(shakeTimeout);
-  }, [status, toast]);
+    }, 1000); // Shake animation duration
+  }, [isBusy]);
 
   useEffect(() => {
     if (permissionState !== 'granted') return;
@@ -105,19 +123,10 @@ export function Magic8Ball() {
     }
   }, [permissionState, toast]);
   
-  const isBusy = status === 'shaking' || status === 'loading';
-
   const renderContent = () => {
     switch (status) {
       case 'loading':
         return <Loader2 className="h-10 w-10 animate-spin text-digital-green text-glow" />;
-      case 'error':
-        return (
-          <div className="flex flex-col items-center text-center">
-            <AlertTriangle className="h-8 w-8 text-digital-green text-glow mb-2" />
-            <p className="font-digital text-[20px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">{affirmation}</p>
-          </div>
-        );
       case 'idle':
       case 'shaking':
         return (
