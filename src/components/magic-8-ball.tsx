@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -34,6 +34,7 @@ export function Magic8Ball() {
   const [status, setStatus] = useState<'idle' | 'shaking' | 'loading'>('idle');
   const [permissionState, setPermissionState] = useState<'unknown' | 'required' | 'granted'>('unknown');
   const { toast } = useToast();
+  const lastShakeTimestamp = useRef(0);
 
   const isBusy = status === 'shaking' || status === 'loading';
 
@@ -68,17 +69,23 @@ export function Magic8Ball() {
   useEffect(() => {
     if (permissionState !== 'granted') return;
 
-    const SHAKE_THRESHOLD = 30;
+    const SHAKE_THRESHOLD = 60; // Increased from 30 to make it less sensitive
+    const SHAKE_COOLDOWN = 2000; // 2-second cooldown to prevent rapid changes
     let lastUpdate = 0;
     let last_x: number | null = null, last_y: number | null = null, last_z: number | null = null;
 
     const handler = (event: DeviceMotionEvent) => {
       if (status === 'shaking' || status === 'loading') return;
       
+      const curTime = Date.now();
+      
+      if (curTime - lastShakeTimestamp.current < SHAKE_COOLDOWN) {
+        return;
+      }
+
       const { acceleration } = event;
       if (!acceleration) return;
       
-      const curTime = new Date().getTime();
       if ((curTime - lastUpdate) > 100) {
         const diffTime = (curTime - lastUpdate);
         lastUpdate = curTime;
@@ -89,6 +96,7 @@ export function Magic8Ball() {
         if (last_x !== null && last_y !== null && last_z !== null) {
            const speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
            if (speed > SHAKE_THRESHOLD) {
+              lastShakeTimestamp.current = curTime;
               getAffirmation();
            }
         }
