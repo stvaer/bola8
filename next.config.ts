@@ -2,6 +2,7 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   output: 'export',
+  trailingSlash: true,
   basePath: '/bola8',
   assetPrefix: '/bola8',
   typescript: {
@@ -24,5 +25,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-
