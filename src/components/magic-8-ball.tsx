@@ -49,13 +49,12 @@ export function Magic8Ball() {
       const randomIndex = Math.floor(Math.random() * affirmations.length);
       const newAffirmation = affirmations[randomIndex];
       
-      // A small delay to show the loading animation before the result
       setTimeout(() => {
         setAffirmation(newAffirmation);
         setStatus('idle');
       }, 500);
 
-    }, 1000); // Shake animation duration
+    }, 1000);
   }, [isBusy]);
 
   useEffect(() => {
@@ -69,8 +68,8 @@ export function Magic8Ball() {
   useEffect(() => {
     if (permissionState !== 'granted') return;
 
-    const SHAKE_THRESHOLD = 60; // Increased from 30 to make it less sensitive
-    const SHAKE_COOLDOWN = 2000; // 2-second cooldown to prevent rapid changes
+    const SHAKE_THRESHOLD = 60;
+    const SHAKE_COOLDOWN = 2000;
     let lastUpdate = 0;
     let last_x: number | null = null, last_y: number | null = null, last_z: number | null = null;
 
@@ -94,7 +93,7 @@ export function Magic8Ball() {
         if (x === null || y === null || z === null) return;
         
         if (last_x !== null && last_y !== null && last_z !== null) {
-           const speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+           const speed = (Math.abs(x - last_x) + Math.abs(y - last_y) + Math.abs(z - last_z)) / diffTime * 10000;
            if (speed > SHAKE_THRESHOLD) {
               lastShakeTimestamp.current = curTime;
               getAffirmation();
@@ -141,7 +140,7 @@ export function Magic8Ball() {
       case 'idle':
       case 'shaking':
         return (
-          <p className="font-digital text-[20px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
+          <p className="font-digital text-[15px] text-digital-green text-glow text-center leading-tight px-4 animate-fade-in">
             {affirmation}
           </p>
         );
